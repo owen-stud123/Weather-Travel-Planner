@@ -16,12 +16,23 @@
                 <label for="city">Enter City Name:</label>
                 <input type="text" id="city" class="form-control" required>
                 <button type="submit" class="btn btn-primary mt-3">Get Weather</button>
+                <button id="flights" type="submit" class="btn btn-primary mt-3">Book Flights</button>
+                <button type="submit" class="btn btn-primary mt-3">Book Hotels</button>
+                <button type="submit" class="btn btn-primary mt-3">Book rental</button>
             </form>
             <div id="weatherResult" class="mt-4"></div>
         </div>
     </div>
 
     <script>
+        // Store origin country
+        const flights = document.getElementById('flights');
+        let country;
+        flights.addEventListener('click', () => {
+            country = prompt('Book Flight From Where?');
+            console.log(country);   
+        })
+
         document.getElementById("weatherForm").addEventListener("submit", function (event) {
             event.preventDefault();
             let city = document.getElementById("city").value.toLowerCase();
@@ -66,6 +77,13 @@
                     'x-rapidapi-host': 'open-weather13.p.rapidapi.com'
                 }
             };
+            const options1 = {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': 'a419c4e183mshd579c3b0521e74cp192608jsndc0b5c923c55',
+                    'x-rapidapi-host': 'tripadvisor16.p.rapidapi.com'
+                }
+            };
             fetch(url, options)
                 .then(response => response.json())
                 .then(data => {
@@ -85,7 +103,7 @@
                     `;
                     }
                 })
-                .catch(error => console.error("Error fetching weather data:", error));
+                .catch(error => console.error("Error fetching weather data:", error));    
         });
     </script>
 </body>
