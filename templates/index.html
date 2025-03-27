@@ -43,7 +43,7 @@
                     } else {
                         document.getElementById("weatherResult").innerHTML = `
                         <div class="alert alert-success">
-                            <h4>${data.city}</h4>
+                            <h4>${data.name}</h4>
                             <p><strong>Temperature:</strong> ${data.main.temp}°C</p>
                             <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
                             <p><strong>Weather:</strong> ${data.weather.map(w => w.main).join(', ')}</p>
