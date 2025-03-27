@@ -1,23 +1,51 @@
-## README Documentation
-Application Overview
-The application I have chosen to develop is a Weather Forecast Application that provides users with real-time and forecasted weather data for any location they input. This application serves a practical purpose by allowing users to plan their activities based on weather conditions.
+# Air Quality and Weather Dashboard
 
-## Functionality:
+ This application provides real-time weather information for a specified location. 
 
-Users input a city name to retrieve real-time weather data.
-The application displays temperature, humidity, wind speed, and a weather description.
-A 5-day weather forecast feature is included.
-Users can filter results by specific weather conditions (e.g., rain, snow, temperature range).
-Implement error handling for invalid locations or API failures.
+## Features 
+* Retrieves current weather conditions (temperature, humidity, etc.).
+* Allows users to input a location (city)
+* Displays data in a clear and user-friendly format. 
+* Handles API errors gracefully. 
+* Deployed on a load-balanced web server setup.
 
-## The README file includes:
-Steps to clone and run the application locally.
+## Technologies Used 
+* Frontend: HTML, CSS, JavaScript 
+* APIs: 
+* [RapidAPI Hub: public API Marketplace] 
+* [(https://rapidapi.com/worldapi/api/open-weather13/playground/apiendpoint_d15cd885-e8e5-49e7-b94b-588c41687aa1)] 
+* Web Servers: Nginx or Apache 
+* Load Balancer: Nginx 
 
-API setup instructions and key storage best practices.
+## Setup and Installation 
 
-Detailed deployment steps for Web01 and Web02.
+### Local Setup 
+1. Clone the repository: `git clone [repository_url]` 
+2. Navigate to the project directory: `cd air-weather-forecater` 
+3. navigate
+ 
+### Deployment 
 
-Load balancer setup and verification procedures.
+1. Transfer the `deployment` folder and the client and server folders to your web servers (Web01 and Web02). 
+2. Run the `deploy.sh` script on each web server. This script will install dependencies and configure the web server. 
+3. Configure the load balancer (Lb01) using the `nginx.conf` file provided in the `deployment/lb01` directory. 
+4. Access the application through the load balancer's address. 
 
-Troubleshooting common issues.
+## API Keys 
 
+* API keys are stored securely in the `.env` file (for backend) and are not committed to the repository. 
+* If you are not using a backend, please be aware that storing api keys client side is not secure. 
+
+## Challenges and Solutions 
+
+* **API Rate Limits:  
+* **Load Balancer Configuration:
+** Spent time learning the best practices for configuring Nginx as a load balancer. 
+
+## Credits and Resources 
+* RapidAPI Hub: public API Marketplace for providing the weather and air quality APIs. 
+* [https://rapidapi.com/hub] 
+
+## Author 
+
+* [Owen Ganza]
