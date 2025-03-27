@@ -12,8 +12,7 @@
 ## Technologies Used 
 * Frontend: HTML, CSS, JavaScript 
 * APIs: 
-* [RapidAPI Hub: public API Marketplace] 
-* [(https://rapidapi.com/worldapi/api/open-weather13/playground/apiendpoint_d15cd885-e8e5-49e7-b94b-588c41687aa1)] 
+* [RapidAPI Hub: public API Marketplace]  
 * Web Servers: Nginx or Apache 
 * Load Balancer: Nginx 
 
