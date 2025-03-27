@@ -26,6 +26,39 @@
             event.preventDefault();
             let city = document.getElementById("city").value.toLowerCase();
             const url = `https://open-weather13.p.rapidapi.com/city/${city}/EN`;
+            const url1 = 'https://tripadvisor16.p.rapidapi.com/api/v1/flights/searchFlights';
+            const url2 = 'https://tripadvisor16.p.rapidapi.com/api/v1/hotels/searchHotelsByLocation/';
+            const url3 = 'https://tripadvisor16.p.rapidapi.com/api/v1/rentals/rentalAvailability';
+            const params1 = {
+                sourceAirportCode: 'BOM',
+                destinationAirportCode: 'DEL',
+                itineraryType: 'ONE_WAY',
+                sortOrder: 'ML_BEST_VALUE',
+                numAdults: '1',
+                numSeniors: '0',
+                classOfService: 'ECONOMY',
+                pageNumber: '1',
+                nearby: 'yes',
+                nonstop: 'yes',
+                currencyCode: 'USD',
+                region: 'USA'
+            };
+            const params2 = {
+                latitude: '40.730610',
+                longitude: '-73.935242',
+                pageNumber: '1',
+                currencyCode: 'USD'
+            };
+            const params3 = {
+                rentalId: 'VacationRentalReview-g60763-d24816619-Deluxe_Double_Queen_with_Balcony-New_York_City_New_York'
+            };
+
+            function interpolateParams(params) {
+                return '?' + Object.keys(params).map(k => `${k}=${params[k]}`).join('&')
+            }
+
+            console.log(interpolateParams(params1));
+            console.log(interpolateParams(params2));
             const options = {
                 method: 'GET',
                 headers: {
