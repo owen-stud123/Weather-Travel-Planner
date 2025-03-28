@@ -4,14 +4,17 @@
  * This script handles fetching weather data and travel options through various APIs.
  * It includes functionality for getting weather data, searching flights, hotels, and rentals.
  * 
- * Note: Replace the API_KEY with your actual key before using.
+ * API Usage:
+ * - WeatherAPI.com for current weather conditions
+ * - TripAdvisor API for flights, hotels, and rentals
  */
 
-// API key for RapidAPI services - to be replaced with your actual key
-const API_KEY = '275dbf7aa4msh4044059aa6b2e43p1b4662jsna7154321ee38'; // Replace with your actual API key
+// API key for RapidAPI services - replace with your actual key in production
+const API_KEY = '275dbf7aa4msh4044059aa6b2e43p1b4662jsna7154321ee38'; 
 
 // DOM elements
 const weatherForm = document.getElementById('weatherForm');
+const weatherBtn = document.getElementById('weather');
 const weatherResult = document.getElementById('weatherResult');
 const travelResult = document.getElementById('travelResult');
 const flightsBtn = document.getElementById('flights');
@@ -27,12 +30,58 @@ let weatherData;
 // Store recent searches in local storage
 let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
 
+// Initialize application
+document.addEventListener('DOMContentLoaded', () => {
+    // Display any saved recent searches
+    displayRecentSearches();
+    
+    // Set up event handlers
+    if (weatherForm) {
+        weatherForm.addEventListener('submit', handleFormSubmit);
+    }
+    
+    if (weatherBtn) {
+        weatherBtn.addEventListener('click', handleWeatherButtonClick);
+    }
+    
+    // Add event listener for rentals button
+    if (rentalsBtn) {
+        rentalsBtn.addEventListener('click', handleRentalsSearch);
+    }
+});
+
+/**
+ * Handle form submission event
+ * @param {Event} e - Form submit event
+ */
+function handleFormSubmit(e) {
+    e.preventDefault();
+    const city = cityInput.value.trim();
+    if (city) {
+        getWeather(city);
+    }
+}
+
+/**
+ * Handle weather button click event
+ */
+function handleWeatherButtonClick() {
+    const city = cityInput.value.trim();
+    if (city) {
+        getWeather(city);
+    } else {
+        showError('Please enter a city name first', 'weatherResult');
+    }
+}
+
 /**
  * Toggle loading indicator visibility
  * @param {boolean} state - True to show loading, false to hide
  */
 const toggleLoading = (state) => {
-    loadingIndicator.style.display = state ? 'block' : 'none';
+    if (loadingIndicator) {
+        loadingIndicator.style.display = state ? 'block' : 'none';
+    }
 };
 
 /**
@@ -41,11 +90,14 @@ const toggleLoading = (state) => {
  * @param {string} target - DOM element ID to display error in
  */
 const showError = (message, target) => {
-    document.getElementById(target).innerHTML = `
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle me-2"></i>${message}
-        </div>
-    `;
+    const element = document.getElementById(target);
+    if (element) {
+        element.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>${message}
+            </div>
+        `;
+    }
 };
 
 /**
@@ -75,6 +127,8 @@ const saveToRecentSearches = (city) => {
  * Display recent searches in the UI
  */
 const displayRecentSearches = () => {
+    if (!recentSearchesEl) return;
+    
     recentSearchesEl.innerHTML = '';
     recentSearches.forEach(city => {
         const item = document.createElement('a');
@@ -100,12 +154,16 @@ const displayRecentSearches = () => {
 const getWeatherIcon = (condition) => {
     const conditionLower = condition.toLowerCase();
     
-    if (conditionLower.includes('clear')) return 'fa-sun';
+    if (conditionLower.includes('sunny') || conditionLower.includes('clear')) return 'fa-sun';
+    if (conditionLower.includes('partly cloudy')) return 'fa-cloud-sun';
     if (conditionLower.includes('cloud')) return 'fa-cloud';
-    if (conditionLower.includes('rain')) return 'fa-cloud-rain';
+    if (conditionLower.includes('overcast')) return 'fa-cloud';
+    if (conditionLower.includes('drizzle')) return 'fa-cloud-rain';
+    if (conditionLower.includes('rain')) return 'fa-cloud-showers-heavy';
     if (conditionLower.includes('snow')) return 'fa-snowflake';
+    if (conditionLower.includes('sleet')) return 'fa-snowflake';
     if (conditionLower.includes('thunder')) return 'fa-bolt';
-    if (conditionLower.includes('mist') || conditionLower.includes('fog')) return 'fa-smog';
+    if (conditionLower.includes('fog') || conditionLower.includes('mist')) return 'fa-smog';
     
     // Default icon
     return 'fa-cloud-sun';
@@ -129,12 +187,22 @@ const getWindDescription = (speed) => {
 };
 
 /**
+ * Format a date object to a readable string
+ * @param {Date} date - Date object
+ * @returns {string} - Formatted date string
+ */
+const formatDate = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
+/**
  * Fetch and display weather data for a given city
  * @param {string} city - Name of the city to get weather for
  */
 const getWeather = async (city) => {
     toggleLoading(true);
-    weatherResult.innerHTML = '';
+    if (weatherResult) weatherResult.innerHTML = '';
+    if (travelResult) travelResult.innerHTML = ''; // Clear any previous travel results
     
     try {
         const response = await fetch(`https://weatherapi-com.p.rapidapi.com/current.json?q=${encodeURIComponent(city)}`, {
@@ -145,13 +213,20 @@ const getWeather = async (city) => {
             }
         });
         
+        // Check for HTTP errors
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        // Parse the JSON response
         const data = await response.json();
         
-        if (!response.ok) {
-            throw new Error(data.error?.message || 'Weather data not found');
+        // Check for error in response
+        if (data.error) {
+            throw new Error(data.error.message || 'Weather data not found');
         }
 
-        // Store weather data for later use
+        // Store weather data for later use with other features
         weatherData = data;
         
         // Save to recent searches
@@ -165,53 +240,56 @@ const getWeather = async (city) => {
         const formattedTime = localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const formattedDate = localTime.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
         
-        // Create weather display
-        weatherResult.innerHTML = `
-            <div class="weather-card">
-                <div class="weather-header">
-                    <div>
-                        <h2>${data.location.name}, ${data.location.country}</h2>
-                        <p>${formattedDate} | ${formattedTime}</p>
+        // Create weather display with improved UI
+        if (weatherResult) {
+            weatherResult.innerHTML = `
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div>
+                            <h2>${data.location.name}, ${data.location.country}</h2>
+                            <p>${formattedDate} | ${formattedTime}</p>
+                        </div>
+                        <div class="weather-temp">
+                            ${data.current.temp_c}°C
+                        </div>
                     </div>
-                    <div class="weather-temp">
-                        ${data.current.temp_c}°C
+                    
+                    <div class="d-flex align-items-center mt-3">
+                        <i class="fas ${iconClass} weather-icon me-3"></i>
+                        <h3>${data.current.condition.text}</h3>
+                    </div>
+                    
+                    <div class="weather-details">
+                        <div class="weather-detail-item">
+                            <i class="fas fa-temperature-high mb-2"></i>
+                            <p class="mb-0">Feels Like</p>
+                            <h5>${data.current.feelslike_c}°C</h5>
+                        </div>
+                        <div class="weather-detail-item">
+                            <i class="fas fa-wind mb-2"></i>
+                            <p class="mb-0">Wind</p>
+                            <h5>${data.current.wind_kph} km/h</h5>
+                            <p class="small text-white-50">${getWindDescription(data.current.wind_kph/3.6)}</p>
+                        </div>
+                        <div class="weather-detail-item">
+                            <i class="fas fa-tint mb-2"></i>
+                            <p class="mb-0">Humidity</p>
+                            <h5>${data.current.humidity}%</h5>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="d-flex align-items-center mt-3">
-                    <i class="fas ${iconClass} weather-icon me-3"></i>
-                    <h3>${data.current.condition.text}</h3>
-                </div>
-                
-                <div class="weather-details">
-                    <div class="weather-detail-item">
-                        <i class="fas fa-temperature-high mb-2"></i>
-                        <p class="mb-0">Feels Like</p>
-                        <h5>${data.current.feelslike_c}°C</h5>
-                    </div>
-                    <div class="weather-detail-item">
-                        <i class="fas fa-wind mb-2"></i>
-                        <p class="mb-0">Wind</p>
-                        <h5>${data.current.wind_kph} km/h</h5>
-                        <p class="small text-white-50">${getWindDescription(data.current.wind_kph/3.6)}</p>
-                    </div>
-                    <div class="weather-detail-item">
-                        <i class="fas fa-tint mb-2"></i>
-                        <p class="mb-0">Humidity</p>
-                        <h5>${data.current.humidity}%</h5>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Planning a trip to ${data.location.name}?</h5>
+                        <p class="card-text">Use the buttons on the left to explore travel options.</p>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Planning a trip to ${data.location.name}?</h5>
-                    <p class="card-text">Use the buttons on the left to explore travel options.</p>
-                </div>
-            </div>
-        `;
+            `;
+        }
     } catch (error) {
-        showError(error.message || 'Failed to fetch weather data', 'weatherResult');
+        showError(error.message || 'Failed to fetch weather data. Please check the city name and try again.', 'weatherResult');
+        console.error('Weather API Error:', error);
     } finally {
         toggleLoading(false);
     }
@@ -225,15 +303,19 @@ flightsBtn.addEventListener('click', async () => {
     let suggestedDestination = weatherData?.location?.name || '';
     
     const origin = prompt('Enter origin airport code (e.g., JFK):');
-    const destination = prompt(`Enter destination airport code (e.g., LAX):`, suggestedDestination);
+    if (!origin) {
+        showError('Origin airport code is required', 'travelResult');
+        return;
+    }
     
-    if (!origin || !destination) {
-        showError('Please provide both airport codes', 'travelResult');
+    const destination = prompt(`Enter destination airport code (e.g., LAX):`, suggestedDestination);
+    if (!destination) {
+        showError('Destination airport code is required', 'travelResult');
         return;
     }
     
     toggleLoading(true);
-    travelResult.innerHTML = '';
+    if (travelResult) travelResult.innerHTML = '';
     
     try {
         // Calculate dates for departure (tomorrow) and return (+7 days)
@@ -242,14 +324,10 @@ flightsBtn.addEventListener('click', async () => {
         const returnDate = new Date(tomorrow);
         returnDate.setDate(returnDate.getDate() + 7);
         
-        // Format dates as YYYY-MM-DD
-        const formatDate = (date) => {
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        };
-        
         const departureDate = formatDate(tomorrow);
         const returnDateStr = formatDate(returnDate);
         
+        // Build API request parameters
         const params = {
             sourceAirportCode: origin,
             destinationAirportCode: destination,
@@ -274,24 +352,16 @@ flightsBtn.addEventListener('click', async () => {
             }
         });
         
-        const data = await response.json();
-        
+        // Check for HTTP errors
         if (!response.ok) {
-            throw new Error(data.message || 'Failed to fetch flights');
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        // Check if flights data exists
-        if (data && data.data && data.data.flights) {
+        const data = await response.json();
+        
+        // Check if flights data exists and display results
+        if (data && data.data && data.data.flights && data.data.flights.length > 0) {
             const flights = data.data.flights;
-            
-            if (flights.length === 0) {
-                travelResult.innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="fas fa-info-circle me-2"></i>No flights found from ${origin} to ${destination}.
-                    </div>
-                `;
-                return;
-            }
             
             // Display up to 5 flights
             const flightsToShow = flights.slice(0, 5);
@@ -303,15 +373,18 @@ flightsBtn.addEventListener('click', async () => {
             `;
             
             flightsToShow.forEach(flight => {
-                const airline = flight.segments[0].marketingCarrier.displayName;
-                const departureTime = new Date(flight.segments[0].departDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const arrivalTime = new Date(flight.segments[0].arriveDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const duration = flight.segments[0].duration;
-                const price = flight.purchaseLinks[0].totalPrice;
+                // Extract flight details safely with optional chaining
+                const airline = flight.segments[0]?.marketingCarrier?.displayName || 'Unknown Airline';
+                const departureTime = flight.segments[0]?.departDateTime ? 
+                    new Date(flight.segments[0].departDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                const arrivalTime = flight.segments[0]?.arriveDateTime ?
+                    new Date(flight.segments[0].arriveDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                const duration = flight.segments[0]?.duration || 'N/A';
+                const price = flight.purchaseLinks && flight.purchaseLinks[0]?.totalPrice || 'N/A';
                 
                 flightsHtml += `
                     <div class="col-md-6 mb-3">
-                        <div class="card travel-card">
+                        <div class="card travel-card h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5 class="mb-0">${airline}</h5>
@@ -341,16 +414,22 @@ flightsBtn.addEventListener('click', async () => {
             });
             
             flightsHtml += `</div>`;
-            travelResult.innerHTML = flightsHtml;
+            
+            if (travelResult) {
+                travelResult.innerHTML = flightsHtml;
+            }
         } else {
-            travelResult.innerHTML = `
-                <div class="alert alert-warning">
-                    <i class="fas fa-info-circle me-2"></i>No flight data available.
-                </div>
-            `;
+            if (travelResult) {
+                travelResult.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>No flights found from ${origin} to ${destination}.
+                    </div>
+                `;
+            }
         }
     } catch (error) {
-        showError(error.message || 'Failed to fetch flight data', 'travelResult');
+        showError(error.message || 'Failed to fetch flight data. Please check your inputs and try again.', 'travelResult');
+        console.error('Flights API Error:', error);
     } finally {
         toggleLoading(false);
     }
@@ -367,17 +446,23 @@ hotelsBtn.addEventListener('click', async () => {
     }
 
     toggleLoading(true);
-    travelResult.innerHTML = '';
+    if (travelResult) travelResult.innerHTML = '';
 
     try {
+        // Calculate check-in and check-out dates (3 days from now, and 7 days from now)
+        const checkInDate = new Date();
+        checkInDate.setDate(checkInDate.getDate() + 3);
+        const checkOutDate = new Date(checkInDate);
+        checkOutDate.setDate(checkOutDate.getDate() + 4);
+        
         // Use coordinates from the weather data
         const params = {
             latitude: weatherData.location.lat,
             longitude: weatherData.location.lon,
             pageNumber: '1',
             currencyCode: 'USD',
-            checkIn: '2025-03-29', // Example check-in date
-            checkOut: '2025-04-02', // Example check-out date
+            checkIn: formatDate(checkInDate),
+            checkOut: formatDate(checkOutDate),
         };
 
         const queryString = new URLSearchParams(params).toString();
@@ -391,33 +476,48 @@ hotelsBtn.addEventListener('click', async () => {
             },
         });
 
-        const data = await response.json();
-
+        // Check if the HTTP response is successful
         if (!response.ok) {
-            throw new Error(data.message || 'Failed to fetch hotels');
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
+
+        const data = await response.json();
 
         // Check if hotels data exists
         if (data && data.data && data.data.length > 0) {
             const hotels = data.data;
 
-            // Display up to 5 hotels
-            const hotelsToShow = hotels.slice(0, 5);
+            // Display up to 6 hotels
+            const hotelsToShow = hotels.slice(0, 6);
 
             let hotelsHtml = `
                 <h4 class="mb-3">Hotels in ${weatherData.location.name}</h4>
+                <p>Check-in: ${formatDate(checkInDate)} | Check-out: ${formatDate(checkOutDate)}</p>
                 <div class="row">
             `;
 
             hotelsToShow.forEach((hotel) => {
+                // Extract hotel data safely with optional chaining
+                const name = hotel.title || 'Unknown Hotel';
+                const price = hotel.priceForDisplay || 'Price not available';
+                const rating = hotel.bubbleRating?.rating || 'No rating';
+                const reviewCount = hotel.bubbleRating?.count || '0';
+                const imageUrl = hotel.cardPhotos?.[0]?.sizes?.urlTemplate?.replace('{width}', '300') || '';
+                
                 hotelsHtml += `
-                    <div class="col-md-6 mb-3">
-                        <div class="card travel-card">
+                    <div class="col-md-4 mb-3">
+                        <div class="card travel-card h-100">
+                            ${imageUrl ? `<img src="${imageUrl}" class="card-img-top" alt="${name}">` : ''}
                             <div class="card-body">
-                                <h5 class="card-title">${hotel.name || 'N/A'}</h5>
-                                <p class="card-text">Price: ${hotel.price || 'N/A'}</p>
-                                <p class="card-text">Rating: ${hotel.rating || 'N/A'}</p>
-                                <p class="card-text">Address: ${hotel.address || 'N/A'}</p>
+                                <h5 class="card-title">${name}</h5>
+                                <p class="card-text mb-2">
+                                    <span class="badge bg-success">${rating}/5</span>
+                                    <small class="text-muted">(${reviewCount} reviews)</small>
+                                </p>
+                                <p class="card-text text-primary fw-bold">${price}</p>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <button class="btn btn-sm btn-outline-primary w-100">Book Now</button>
                             </div>
                         </div>
                     </div>
@@ -425,17 +525,24 @@ hotelsBtn.addEventListener('click', async () => {
             });
 
             hotelsHtml += `</div>`;
-            travelResult.innerHTML = hotelsHtml;
+            
+            if (travelResult) {
+                travelResult.innerHTML = hotelsHtml;
+            }
         } else {
-            travelResult.innerHTML = `
-                <div class="alert alert-warning">
-                    <i class="fas fa-info-circle me-2"></i>No hotels found in ${weatherData.location.name}.
-                </div>
-            `;
+            if (travelResult) {
+                travelResult.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>No hotels found in ${weatherData.location.name}.
+                    </div>
+                `;
+            }
         }
     } catch (error) {
-        showError(error.message || 'Failed to fetch hotel data', 'travelResult');
+        showError(error.message || 'Failed to fetch hotel data. Please try again later.', 'travelResult');
+        console.error('Hotels API Error:', error);
     } finally {
         toggleLoading(false);
     }
 });
+
