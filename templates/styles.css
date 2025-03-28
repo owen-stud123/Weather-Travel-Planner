@@ -1,0 +1,155 @@
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+/* Navbar Customization */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.4rem;
+}
+
+.navbar-brand i {
+    margin-right: 8px;
+}
+
+/* Cards and Containers */
+.card {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+/* Weather Result Styling */
+.weather-card {
+    background: linear-gradient(135deg, #72afd3, #37ecba);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.weather-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.weather-temp {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.weather-icon {
+    font-size: 3rem;
+}
+
+.weather-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.weather-detail-item {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Travel Cards */
+.travel-card {
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.travel-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 6px;
+}
+
+.btn-primary {
+    background-color: #4a6fa5;
+    border-color: #4a6fa5;
+}
+
+.btn-primary:hover, .btn-primary:active {
+    background-color: #3a5982;
+    border-color: #3a5982;
+}
+
+.btn-outline-primary {
+    color: #4a6fa5;
+    border-color: #4a6fa5;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4a6fa5;
+    border-color: #4a6fa5;
+}
+
+/* Recent Searches */
+.list-group-item {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: #f1f3f5;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulsing {
+    animation: pulse 1.5s infinite;
+}
+
+/* Footer */
+.footer {
+    margin-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .weather-details {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .weather-temp {
+        font-size: 2.5rem;
+    }
+    
+    .weather-icon {
+        font-size: 2.5rem;
+    }
+}
