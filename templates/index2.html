@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather & Travel Planner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .loading {
+            display: none;
+        }
+
+        .spinner-border {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="text-center">Weather & Travel Planner</h2>
+        <div class="card p-4">
+            <form id="weatherForm">
+                <div class="mb-3">
+                    <label for="city" class="form-label">Enter City Name:</label>
+                    <input type="text" id="city" class="form-control" required>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Get Weather</button>
+                    <button type="button" id="flights" class="btn btn-secondary">Book Flights</button>
+                    <button type="button" id="hotels" class="btn btn-secondary">Book Hotels</button>
+                    <button type="button" id="rentals" class="btn btn-secondary">Book Rental</button>
+                </div>
+                <span class="loading">
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    Loading...
+                </span>
+            </form>
+            <div id="weatherResult" class="mt-4"></div>
+            <div id="travelResult" class="mt-4"></div>
+        </div>
+    </div>
+    <script>
+        const API_KEY = 'a419c4e183mshd579c3b0521e74cp192608jsndc0b5c923c55'; // Note: Should be server-side in production
+        const weatherForm = document.getElementById('weatherForm');
+        const weatherResult = document.getElementById('weatherResult');
+        const travelResult = document.getElementById('travelResult');
+        const flightsBtn = document.getElementById('flights');
+        const hotelsBtn = document.getElementById('hotels');
+        const rentalsBtn = document.getElementById('rentals');
+        const loading = document.querySelector('.loading');
+        let weatherData;
+
+        // Helper function to toggle loading spinner
+        const toggleLoading = (state) => loading.style.display = state ? 'inline' : 'none';
+
+        // Fetch weather data and store it
+        const getWeather = async (city) => {
+            toggleLoading(true);
+            try {
+                const response = await fetch(`https://open-weather13.p.rapidapi.com/city/${city}/EN`, {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': 'a419c4e183mshd579c3b0521e74cp192608jsndc0b5c923c55',
+                        'x-rapidapi-host': 'open-weather13.p.rapidapi.com'
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Weather data not found');
+
+                weatherData = data; // Store weather data for later use
+                const tempCelsius = (data.main.temp - 273.15).toFixed(1);
+                const feelsLikeCelsius = (data.main.feels_like - 273.15).toFixed(1);
+
+                weatherResult.innerHTML = `
+                <div class="alert alert-success">
+                    <h4>${data.name}</h4>
+                    <p><strong>Temperature:</strong> ${tempCelsius}°C</p>
+                    <p><strong>Feels like:</strong> ${feelsLikeCelsius}°C</p>
+                    <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+                    <p><strong>Weather:</strong> ${data.weather.map(w => w.description).join(', ')}</p>
+                    <p><strong>Wind Speed:</strong> ${data.wind.speed} m/s</p>
+                </div>
+            `;
+            } catch (error) {
+                weatherResult.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            } finally {
+                toggleLoading(false);
+            }
+        };
+
+        // Flight booking integration
+        flightsBtn.addEventListener('click', async () => {
+            const origin = prompt('Enter origin airport code (e.g., KGL):'); // KGL
+            const destination = prompt('Enter destination airport code (e.g., ABK):');// ABK or ADD
+            if (!origin || !destination) {
+                travelResult.innerHTML = `<div class="alert alert-warning">Please provide both airport codes.</div>`;
+                return;
+            }
+
+            toggleLoading(true);
+            try {
+                const params = {
+                    sourceAirportCode: origin,
+                    destinationAirportCode: destination,
+                    itineraryType: 'ONE_WAY',
+                    sortOrder: 'ML_BEST_VALUE',
+                    numAdults: '1',
+                    numSeniors: '0',
+                    classOfService: 'ECONOMY',
+                    pageNumber: '1',
+                    nearby: 'yes',
+                    nonstop: 'yes',
+                    currencyCode: 'USD',
+                    region: 'USA'
+                };
+                const queryString = new URLSearchParams(params).toString();
+                const url = `https://tripadvisor16.p.rapidapi.com/api/v1/flights/searchFlights?${queryString}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': 'a419c4e183mshd579c3b0521e74cp192608jsndc0b5c923c55',
+                        'x-rapidapi-host': 'tripadvisor16.p.rapidapi.com'
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to fetch flights');
+
+                // Assuming data.flights is an array of flight results
+                const numFlights = data.flights ? data.flights.length : 0;
+                travelResult.innerHTML = `
+                <div class="alert alert-info">
+                    Found ${numFlights} flights from ${origin} to ${destination}.
+                </div>
+            `;
+            } catch (error) {
+                travelResult.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Hotel booking integration
+        hotelsBtn.addEventListener('click', async () => {
+            // if (!weatherData) {
+            //     alert('Please fetch weather first to get location coordinates.');
+            //     return;
+            // }
+
+            toggleLoading(true);
+            try {
+                const params = {
+                    // latitude: weatherData.coord.lat,
+                    // longitude: weatherData.coord.lon,
+                    latitude: '40.730610',
+                    longitude: '-73.935242',
+                    pageNumber: '1',
+                    currencyCode: 'USD',
+                    checkIn: '2025-03-27',
+                    checkOut: '2025-03-31',
+                };
+                const queryString = new URLSearchParams(params).toString();
+                const url = `https://tripadvisor16.p.rapidapi.com/api/v1/hotels/searchHotelsByLocation?${queryString}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': 'a419c4e183mshd579c3b0521e74cp192608jsndc0b5c923c55',
+                        'x-rapidapi-host': 'tripadvisor16.p.rapidapi.com'
+                    }
+                });
+                const data = await response.json();
+                //----------------
+
+                if (data.hotels && Array.isArray(data.hotels)) {
+                    const hotelList = data.hotels.map(hotel => `
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">${hotel.name || 'N/A'}</h5>
+                            <p class="card-text">Price: ${hotel.price || 'N/A'}</p>
+                            <p class="card-text">Rating: ${hotel.rating || 'N/A'}</p>
+                            <p class="card-text">Address: ${hotel.address || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+                    travelResult.innerHTML = `
+                <h4>Hotels in {weatherData.name}</h4>
+                <div class="row">${hotelList}</div>
+            `;
+                } else {
+                    travelResult.innerHTML = `<div class="alert alert-warning">No hotels found in {weatherData.name}.</div>`;
+                }
+                //-----------------
+
+                if (!response.ok) throw new Error(data.message || 'Failed to fetch hotels');
+
+                console.log(data);
+
+                // Assuming data.hotels is an array of hotel results
+                const numHotels = data.data.data.length || 0;
+                travelResult.innerHTML = `
+                <div class="alert alert-info">
+                    Found ${numHotels} hotels in {weatherData.name}.
+                </div>
+            `;
+            } catch (error) {
+                travelResult.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Rental booking integration (partial, as original endpoint is specific)
+        rentalsBtn.addEventListener('click', async () => {
+            toggleLoading(true);
+            try {
+                const params = {
+                    rentalId: 'VacationRentalReview-g60763-d24816619-Deluxe_Double_Queen_with_Balcony-New_York_City_New_York'
+                };
+                const queryString = new URLSearchParams(params).toString();
+                const url = `https://tripadvisor16.p.rapidapi.com/api/v1/rentals/rentalAvailability?${queryString}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': API_KEY,
+                        'x-rapidapi-host': 'tripadvisor16.p.rapidapi.com'
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to fetch rental availability');
+
+                // Display basic availability message (assuming data indicates availability)
+                travelResult.innerHTML = `
+                <div class="alert alert-info">
+                    Rental availability checked for Deluxe Double Queen with Balcony in New York.
+                </div>
+            `;
+            } catch (error) {
+                travelResult.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Handle form submission for weather
+        weatherForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const city = document.getElementById('city').value.toLowerCase();
+            if (city) getWeather(city);
+        });
+    </script>
+</body>
+
+</html>

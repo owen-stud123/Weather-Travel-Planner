@@ -1,4 +1,4 @@
-# Air Quality and Weather Dashboard
+# Weather & Travel Planner
 
  This application provides real-time weather information for a specified location. 
 
@@ -37,9 +37,10 @@
 
 ## Challenges and Solutions 
 
-* **API Rate Limits:  
+* **API Rate Limits.
+* **Implemented rate-limiting logic to prevent exceeding API limits.
 * **Load Balancer Configuration:
-** Spent time learning the best practices for configuring Nginx as a load balancer. 
+* **Spent time learning the best practices for configuring Nginx as a load balancer. 
 
 ## Credits and Resources 
 * RapidAPI Hub: public API Marketplace for providing the weather and air quality APIs. 
