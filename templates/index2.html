@@ -41,8 +41,13 @@
             <div id="travelResult" class="mt-4"></div>
         </div>
     </div>
+
+    <footer class="text-center mt-5">
+        <p>Powered by Open Weather Rapid API</p>
+    </footer>
+
     <script>
-        const API_KEY = 'a419c4e183mshd579c3b0521e74cp192608jsndc0b5c923c55'; // Note: Should be server-side in production
+        const API_KEY = 'a419c4e183mshd579c3b0521e74cp192608jsndc0b5c923c55'; 
         const weatherForm = document.getElementById('weatherForm');
         const weatherResult = document.getElementById('weatherResult');
         const travelResult = document.getElementById('travelResult');
@@ -127,7 +132,7 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || 'Failed to fetch flights');
 
-                // Assuming data.flights is an array of flight results
+                
                 const numFlights = data.flights ? data.flights.length : 0;
                 travelResult.innerHTML = `
                 <div class="alert alert-info">
@@ -212,7 +217,7 @@
             }
         });
 
-        // Rental booking integration (partial, as original endpoint is specific)
+        // Rental booking integration 
         rentalsBtn.addEventListener('click', async () => {
             toggleLoading(true);
             try {
@@ -231,7 +236,7 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || 'Failed to fetch rental availability');
 
-                // Display basic availability message (assuming data indicates availability)
+                // Display basic availability message
                 travelResult.innerHTML = `
                 <div class="alert alert-info">
                     Rental availability checked for Deluxe Double Queen with Balcony in New York.

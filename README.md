@@ -1,26 +1,27 @@
 # Weather & Travel Planner
 
- This application provides real-time weather information for a specified location. 
+A web application that provides weather forecasts and travel planning tools for any city. Get real-time weather information and book flights, hotels, and rentals all in one place.
 
-## Features 
-* Retrieves current weather conditions (temperature, humidity, etc.).
-* Allows users to input a location (city)
-* Displays data in a clear and user-friendly format. 
-* Handles API errors gracefully. 
-* Deployed on a load-balanced web server setup.
+## Features
+
+- **Weather & Travel Planner**: Retrieve current weather conditions for any city worldwide.
+- **Flight Booking**: Search and book flights to your destination.
+- **Hotel Booking**: Find and reserve hotels in your chosen city.
+- **Rental Booking**: Check availability for rental properties.
+- **User-Friendly Interface**: Enjoy a modern, responsive design powered by Bootstrap.
 
 ## Technologies Used 
 * Frontend: HTML, CSS, JavaScript 
-* APIs: 
-* [RapidAPI Hub: public API Marketplace]  
+* RapidAPI Hub: public API Marketplace for providing the weather and air quality APIs
+* TripAdvisor API: For travel bookings.  
 * Web Servers: Nginx or Apache 
 * Load Balancer: Nginx 
 
 ## Setup and Installation 
 
 ### Local Setup 
-1. Clone the repository: `git clone [repository_url]` 
-2. Navigate to the project directory: `cd air-weather-forecater` 
+1. Clone the repository: `git clone [https://github.com/owen-stud123/Weather-Travel-Planner.git]
+2. Navigate to the project directory: `cd Weather & Travel Planner` 
 3. navigate
  
 ### Deployment 
@@ -40,11 +41,11 @@
 * **API Rate Limits.
 * **Implemented rate-limiting logic to prevent exceeding API limits.
 * **Load Balancer Configuration:
-* **Spent time learning the best practices for configuring Nginx as a load balancer. 
+* ** Spent time learning the best practices for configuring Nginx as a load balancer.
 
 ## Credits and Resources 
 * RapidAPI Hub: public API Marketplace for providing the weather and air quality APIs. 
-* [https://rapidapi.com/hub] 
+* [https://rapidapi.com/hub] OB
 
 ## Author 
 
