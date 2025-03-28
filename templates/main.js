@@ -377,7 +377,7 @@ flightsBtn.addEventListener('click', async () => {
                 const airline = flight.segments[0]?.marketingCarrier?.displayName || 'Unknown Airline';
                 const departureTime = flight.segments[0]?.departDateTime ? 
                     new Date(flight.segments[0].departDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
-                const arrivalTime = flight.segments[0]?.arriveDateTime ?
+                const arrivalTime = flight.segments[0]?.arriveDateTime ? 
                     new Date(flight.segments[0].arriveDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
                 const duration = flight.segments[0]?.duration || 'N/A';
                 const price = flight.purchaseLinks && flight.purchaseLinks[0]?.totalPrice || 'N/A';
@@ -545,4 +545,122 @@ hotelsBtn.addEventListener('click', async () => {
         toggleLoading(false);
     }
 });
+
+/**
+ * Handle rental search for a given location
+ * Uses the weather data coordinates to find rental properties nearby
+ */
+async function handleRentalsSearch() {  // Added 'async' keyword here
+    // Check if weather data is available to use location coordinates
+    if (!weatherData) {
+        showError('Please fetch weather data first to get location coordinates.', 'travelResult');
+        return;
+    }
+
+    toggleLoading(true);
+    if (travelResult) travelResult.innerHTML = '';
+
+    try {
+        // Calculate check-in and check-out dates (next week, 5-day stay)
+        const checkInDate = new Date();
+        checkInDate.setDate(checkInDate.getDate() + 7); // Check in next week
+        const checkOutDate = new Date(checkInDate);
+        checkOutDate.setDate(checkOutDate.getDate() + 5); // 5-day stay
+        
+        // Use coordinates from the weather data
+        const params = {
+            geoId: weatherData.location.region?.id || '0', // TripAdvisor requires geoId
+            latitude: weatherData.location.lat,
+            longitude: weatherData.location.lon,
+            checkIn: formatDate(checkInDate),
+            checkOut: formatDate(checkOutDate),
+            adults: '2',
+            rooms: '1',
+            currencyCode: 'USD',
+            apiKey: API_KEY
+        };
+
+        const queryString = new URLSearchParams(params).toString();
+        const url = `https://tripadvisor16.p.rapidapi.com/api/v1/rentals/searchLocation?${queryString}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'x-rapidapi-key': API_KEY,
+                'x-rapidapi-host': 'tripadvisor16.p.rapidapi.com'
+            }
+        });
+
+        // Check if the HTTP response is successful
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Check if rentals data exists and has results
+        if (data && data.data && data.data.data && data.data.data.length > 0) {
+            const rentals = data.data.data;
+
+            // Display up to 6 rentals
+            const rentalsToShow = rentals.slice(0, 6);
+
+            let rentalsHtml = `
+                <h4 class="mb-3">Vacation Rentals in ${weatherData.location.name}</h4>
+                <p>Check-in: ${formatDate(checkInDate)} | Check-out: ${formatDate(checkOutDate)}</p>
+                <div class="row">
+            `;
+
+            rentalsToShow.forEach((rental) => {
+                // Extract rental data safely with optional chaining
+                const name = rental.title || 'Vacation Rental';
+                const price = rental.priceForDisplay || rental.priceInfo?.displayPrice || 'Price not available';
+                const imageUrl = rental.photos?.[0]?.urlTemplate?.replace('{width}', '300') || '';
+                const bedrooms = rental.roomType?.beds || 'N/A';
+                const bathrooms = rental.roomType?.bathrooms || 'N/A';
+                const rating = rental.bubbleRating?.rating || 'No rating';
+                const reviewCount = rental.bubbleRating?.count || '0';
+                
+                rentalsHtml += `
+                    <div class="col-md-4 mb-3">
+                        <div class="card travel-card h-100">
+                            ${imageUrl ? `<img src="${imageUrl}" class="card-img-top" alt="${name}">` : ''}
+                            <div class="card-body">
+                                <h5 class="card-title">${name}</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="badge bg-secondary">${bedrooms} BR / ${bathrooms} BA</span>
+                                    <span class="badge bg-success">${rating}/5</span>
+                                </div>
+                                <p class="text-muted small">${reviewCount} reviews</p>
+                                <p class="text-primary fw-bold">${price}</p>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <button class="btn btn-sm btn-outline-primary w-100">Book Now</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            rentalsHtml += `</div>`;
+            
+            if (travelResult) {
+                travelResult.innerHTML = rentalsHtml;
+            }
+        } else {
+            if (travelResult) {
+                travelResult.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>No vacation rentals found in ${weatherData.location.name}.
+                    </div>
+                `;
+            }
+        }
+    } catch (error) {
+        showError(error.message || 'Failed to fetch rental data. Please try again later.', 'travelResult');
+        console.error('Rentals API Error:', error);
+    } finally {
+        toggleLoading(false);
+    }
+}
 
