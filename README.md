@@ -2,9 +2,9 @@
 
 This is a web application that provides real-time weather forecasts and integrated travel planning tools. Get instant weather information for any city or country worldwide and seamlessly book flights, hotels, and vacation rentals all in one place.
 
-![Weather & Travel Planner Demo](demo-screenshot.png)
+![Weather & Travel Planner Demo](Screenshot 2025-03-30 000929)
 
-## Ìºü Features
+##  Features
 
 - **Weather Forecasting**: Get current weather conditions for any city with temperature, humidity, wind speed, and more
 - **Flight Search**: Find and compare flights between destinations with pricing and schedule information
@@ -13,7 +13,7 @@ This is a web application that provides real-time weather forecasts and integrat
 - **Recent Search History**: Quickly access your most recently searched locations
 - **Responsive Design**: Enjoy a seamless experience across desktop and mobile devices
 
-## Ìª†Ô∏è Technologies Used
+## Technologies Used
 
 - **Frontend**: HTML, CSS, JavaScript
 - **UI Framework**: Bootstrap 5
@@ -23,7 +23,7 @@ This is a web application that provides real-time weather forecasts and integrat
   - [TripAdvisor API](https://www.tripadvisor.com/developers) for travel bookings
 - **Deployment**: Static hosting with Nginx or Apache
 
-## Ì∫Ä Setup and Installation
+##  Setup and Installation
 
 ### Prerequisites
 
@@ -59,7 +59,7 @@ This is a web application that provides real-time weather forecasts and integrat
 2. Configure your web server (Nginx or Apache) to serve the files
 3. For load balancing, see the configuration example in `deployment/lb01/nginx.conf`
 
-## Ì≥ù API Usage
+##  API Usage
 
 ### Weather API
 
@@ -69,21 +69,21 @@ The application uses the WeatherAPI.com service through RapidAPI to fetch curren
 
 The application uses TripAdvisor's API for flights, hotels, and rentals:
 
-## Ìª°Ô∏è Privacy & Security
+##  Privacy & Security
 
 - API keys are stored securely and not committed to the repository
 
-## Ì∑© Challenges and Solutions
+##  Challenges and Solutions
 
 - **API Rate Limits**: Implemented caching and user throttling to prevent exceeding limits
 - **Responsive Design**: Used Bootstrap's grid system and media queries for mobile optimization
 - **Load Balancer Configuration**: Configured Nginx for high availability and performance
 
-## Ì±• Author
+##  Author
 
 - [Owen Ganza](https://github.com/owen-stud123)
 
-## Ìπè Acknowledgments
+##  Acknowledgments
 
 - [RapidAPI](https://rapidapi.com/hub) for providing access to various APIs
 - [Bootstrap](https://getbootstrap.com/) for the responsive design framework
