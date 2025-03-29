@@ -1,52 +1,90 @@
 # Weather & Travel Planner
 
-A web application that provides weather forecasts and travel planning tools for any city. Get real-time weather information and book flights, hotels, and rentals all in one place.
+This is a web application that provides real-time weather forecasts and integrated travel planning tools. Get instant weather information for any city or country worldwide and seamlessly book flights, hotels, and vacation rentals all in one place.
 
-## Features
+![Weather & Travel Planner Demo](demo-screenshot.png)
 
-- **Weather & Travel Planner**: Retrieve current weather conditions for any city worldwide.
-- **Flight Booking**: Search and book flights to your destination.
-- **Hotel Booking**: Find and reserve hotels in your chosen city.
-- **Rental Booking**: Check availability for rental properties.
-- **User-Friendly Interface**: Enjoy a modern, responsive design powered by Bootstrap.
+## Ìºü Features
 
-## Technologies Used 
-* Frontend: HTML, CSS, JavaScript 
-* RapidAPI Hub: public API Marketplace for providing the weather and air quality APIs
-* TripAdvisor API: For travel bookings.  
-* Web Servers: Nginx or Apache 
-* Load Balancer: Nginx 
+- **Weather Forecasting**: Get current weather conditions for any city with temperature, humidity, wind speed, and more
+- **Flight Search**: Find and compare flights between destinations with pricing and schedule information
+- **Hotel Booking**: Browse available hotels with ratings, reviews, and pricing details
+- **Vacation Rentals**: Discover rental properties with amenities and availability calendars
+- **Recent Search History**: Quickly access your most recently searched locations
+- **Responsive Design**: Enjoy a seamless experience across desktop and mobile devices
 
-## Setup and Installation 
+## Ìª†Ô∏è Technologies Used
 
-### Local Setup 
-1. Clone the repository: `git clone [https://github.com/owen-stud123/Weather-Travel-Planner.git]
-2. Navigate to the project directory: `cd Weather & Travel Planner` 
-3. navigate
- 
-### Deployment 
+- **Frontend**: HTML, CSS, JavaScript
+- **UI Framework**: Bootstrap 5
+- **Icons**: Font Awesome 6
+- **API Integration**:
+  - [WeatherAPI.com](https://www.weatherapi.com/) for weather data
+  - [TripAdvisor API](https://www.tripadvisor.com/developers) for travel bookings
+- **Deployment**: Static hosting with Nginx or Apache
 
-1. Transfer the `deployment` folder and the client and server folders to your web servers (Web01 and Web02). 
-2. Run the `deploy.sh` script on each web server. This script will install dependencies and configure the web server. 
-3. Configure the load balancer (Lb01) using the `nginx.conf` file provided in the `deployment/lb01` directory. 
-4. Access the application through the load balancer's address. 
+## Ì∫Ä Setup and Installation
 
-## API Keys 
+### Prerequisites
 
-* API keys are stored securely in the `.env` file (for backend) and are not committed to the repository. 
-* If you are not using a backend, please be aware that storing api keys client side is not secure. 
+- Basic knowledge of web development
+- API keys for WeatherAPI.com and TripAdvisor (via RapidAPI)
+- A web browser
 
-## Challenges and Solutions 
+### Local Development
 
-* **API Rate Limits.
-* **Implemented rate-limiting logic to prevent exceeding API limits.
-* **Load Balancer Configuration:
-* ** Spent time learning the best practices for configuring Nginx as a load balancer.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/owen-stud123/Weather-Travel-Planner.git
+   ```
 
-## Credits and Resources 
-* RapidAPI Hub: public API Marketplace for providing the weather and air quality APIs. 
-* [https://rapidapi.com/hub] OB
+2. Navigate to the project directory:
+   ```bash
+   cd Weather-Travel-Planner
+   ```
 
-## Author 
+3. Open `templates/main.js` and replace the API key with your own:
+   ```javascript
+   const API_KEY = 'YOUR_RAPIDAPI_KEY';
+   ```
 
-* [Owen Ganza]
+4. Open `templates/index.html` in your web browser or use a local development server:
+   ```bash
+   npx serve templates
+   ```
+
+### Production Deployment
+
+1. Transfer the files to your web server's document root
+2. Configure your web server (Nginx or Apache) to serve the files
+3. For load balancing, see the configuration example in `deployment/lb01/nginx.conf`
+
+## Ì≥ù API Usage
+
+### Weather API
+
+The application uses the WeatherAPI.com service through RapidAPI to fetch current weather conditions:
+
+### TripAdvisor API
+
+The application uses TripAdvisor's API for flights, hotels, and rentals:
+
+## Ìª°Ô∏è Privacy & Security
+
+- API keys are stored securely and not committed to the repository
+
+## Ì∑© Challenges and Solutions
+
+- **API Rate Limits**: Implemented caching and user throttling to prevent exceeding limits
+- **Responsive Design**: Used Bootstrap's grid system and media queries for mobile optimization
+- **Load Balancer Configuration**: Configured Nginx for high availability and performance
+
+## Ì±• Author
+
+- [Owen Ganza](https://github.com/owen-stud123)
+
+## Ìπè Acknowledgments
+
+- [RapidAPI](https://rapidapi.com/hub) for providing access to various APIs
+- [Bootstrap](https://getbootstrap.com/) for the responsive design framework
+- [Font Awesome](https://fontawesome.com/) for the icons used throughout the application
