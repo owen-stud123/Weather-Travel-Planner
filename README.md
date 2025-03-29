@@ -2,7 +2,7 @@
 
 This is a web application that provides real-time weather forecasts and integrated travel planning tools. Get instant weather information for any city or country worldwide and seamlessly book flights, hotels, and vacation rentals all in one place.
 
-![Weather & Travel Planner Demo](Screenshot 2025-03-30 000929)
+![Weather & Travel Planner Demo](Screenshot 2025-03-30 000929.png)
 
 ##  Features
 
